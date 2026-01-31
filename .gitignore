@@ -1,0 +1,21 @@
+# Python (Standard & Bytecode)
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+venv/
+env/
+
+# Visual Studio
+.vs/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+
+# Visual Studio Code
+.vscode/
+
+# OS Specific
+.DS_Store
+Thumbs.db
