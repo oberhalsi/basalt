@@ -2,22 +2,30 @@ from src.ops.math_ops import add, sub, mul, div, mod
 from src.ops.io_ops import put, ask
 from src.ops.stack_ops import dup, drop, swap, clear
 from src.ops.logic_ops import eq, gt, lt
+from src.ops.var_ops import assign, call
 
 CMDS = {
+    # Math ops
     "+": lambda stack: add(stack),
     "-": lambda stack: sub(stack),
     "*": lambda stack: mul(stack),
     "/": lambda stack: div(stack),
     "%": lambda stack: mod(stack),
+    # IO ops
     "print": lambda stack: put(stack),
     "in": lambda stack: ask(stack),
+    # Stack ops
     "dup": lambda stack: dup(stack),
     "drop": lambda stack: drop(stack),
     "swap": lambda stack: swap(stack),
     "popall": lambda stack: clear(stack),
+    # Boolean ops
     "==": lambda stack: eq(stack),
     ">": lambda stack: gt(stack),
     "<": lambda stack: lt(stack),
+    # Variable ops
+    "=": lambda stack: assign(stack),
+    "call": lambda stack: call(stack),
 }
 
 def execute(tokens, stack):
