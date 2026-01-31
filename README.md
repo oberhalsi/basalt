@@ -4,9 +4,8 @@ A stack-based programming language.
 ## Quick Start
 1. Install Python 3.
 2. To run your `.b` code, run `python main.py tests/math.b`.
+Go [here](docs/installation.md) for a full installation guide.
 
 ## Documentation
-For detailed guides, check out our documentation:
-- [Installation Guide](docs/installation.md)
-- [Command Reference](docs/commands.md)
-- [How it Works](docs/logic.md)
+Documentation is in the works.
+

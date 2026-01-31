@@ -1,10 +1,6 @@
-# Basalt Programming Language
-
-A simple stack-based programming language
-
 ### Installation
-To fully experience `Basalt`, complete the following steps.
-1. Install all Basalt files
+To fully experience Basalt, complete the following steps.
+1. Install all Basalt files (you can do this through our [website](https://sites.google.com/view/basaltlang/home))
 2. Copy the path to the `Basalt` folder.
 3. Open **Environment Variables** in Windows.
 4. Under "User variables", find **Path**, click **Edit**, then **New**.
