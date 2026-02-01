@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Basalt — A Stack-Based Programming Language</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ============================================================
+   CUSTOMIZATION GUIDE
+   ============================================================
+   COLORS & FONTS   → the :root block and FONTS comment below
+   NAV              → CSS: NAV block | HTML: nav#navbar
+   HERO             → CSS: HERO block | HTML: section.hero
+   ABOUT            → CSS: ABOUT STRIP | HTML: section#about
+   QUICK START      → CSS: QUICK START | HTML: section#quickstart
+   REFERENCE        → CSS: REFERENCE  | HTML: section#reference
+   ARCHITECTURE     → CSS: ARCHITECTURE | HTML: section#architecture
+   EXAMPLES         → CSS: EXAMPLES   | HTML: section#examples
+   FOOTER           → CSS: FOOTER     | HTML: footer
+   SCRIPTS          → script tag at the very bottom
+   ============================================================ */
+
+/* ─── Reset ─── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ============================================================
+   COLORS — edit these values to restyle the whole site.
+     --bg            darkest page background
+     --bg-card       card / panel fill
+     --text          body text
+     --text-muted    subtitles & labels
+     --text-bright   headings
+     --accent        primary accent (buttons, links, glows)
+     --accent-glow   shadow colour for accent buttons
+     --accent2       secondary accent (control-flow icon)
+     --code-bg       code block background
+     --border        default border
+     --border-hover  border on hover
+     --radius        card border-radius
+   ============================================================ */
+:root{
+  --bg:#0a0b0d;
+  --bg-card:#111214;
+  --bg-card-hover:#161819;
+  --text:#e2e4e8;
+  --text-muted:#6b7280;
+  --text-bright:#f5f6f8;
+  --accent:#e8724a;
+  --accent-glow:rgba(232,114,74,.35);
+  --accent2:#c9a545;
+  --code-bg:#0e1012;
+  --border:rgba(255,255,255,.06);
+  --border-hover:rgba(255,255,255,.14);
+  --radius:12px;
+}
+
+/* ============================================================
+   FONTS — swap the Google Fonts link in <head> then update
+   the three family names used throughout the CSS:
+     Syne          → headings & nav logo
+     IBM Plex Mono → code blocks & mono labels
+     Inter         → body text
+   ============================================================ */
+
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.7;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* ─── Noise Overlay ─── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:999;opacity:.6;
+}
+
+/* ─── NAV ─── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:18px 40px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(10,11,13,.75);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
+  transition:padding .3s;
+}
+nav.scrolled{padding:12px 40px}
+.nav-logo{
+  font-family:'Syne',sans-serif;
+  font-weight:800;font-size:1.3rem;
+  color:var(--text-bright);
+  letter-spacing:-.02em;
+  text-decoration:none;
+}
+.nav-logo span{color:var(--accent)}
+.nav-links{display:flex;gap:28px}
+.nav-links a{
+  color:var(--text-muted);text-decoration:none;
+  font-size:.82rem;font-weight:500;letter-spacing:.04em;text-transform:uppercase;
+  transition:color .25s;position:relative;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;
+  background:var(--accent);transition:width .3s;
+}
+.nav-links a:hover{color:var(--accent)}
+.nav-links a:hover::after{width:100%}
+.nav-links a.active{color:var(--accent)}
+.nav-links a.active::after{width:100%}
+
+/* ─── HERO ─── */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:120px 24px 80px;
+  position:relative;
+  text-align:center;
+}
+.hero-glow{
+  position:absolute;
+  top:10%;left:50%;transform:translateX(-50%);
+  width:700px;height:500px;
+  background:radial-gradient(ellipse at center,rgba(232,114,74,.12) 0%,transparent 70%);
+  pointer-events:none;filter:blur(40px);
+  animation:pulseGlow 6s ease-in-out infinite alternate;
+}
+@keyframes pulseGlow{from{opacity:.6;transform:translateX(-50%) scale(1)}to{opacity:1;transform:translateX(-50%) scale(1.08)}}
+
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(232,114,74,.1);border:1px solid rgba(232,114,74,.25);
+  color:var(--accent);font-size:.75rem;font-weight:500;
+  padding:6px 14px;border-radius:99px;letter-spacing:.06em;text-transform:uppercase;
+  margin-bottom:32px;
+  animation:fadeUp .8s .2s both;
+}
+.hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+.hero h1{
+  font-family:'Syne',sans-serif;
+  font-weight:800;font-size:clamp(3rem,8vw,6.5rem);
+  line-height:1.05;letter-spacing:-.04em;
+  color:var(--text-bright);
+  animation:fadeUp .8s .35s both;
+}
+.hero h1 .accent{color:var(--accent)}
+.hero h1 .dim{color:var(--text-muted);font-weight:600}
+
+.hero-sub{
+  max-width:560px;margin:28px auto 0;
+  color:var(--text-muted);font-size:1.05rem;font-weight:300;
+  line-height:1.8;
+  animation:fadeUp .8s .5s both;
+}
+
+.hero-actions{
+  margin-top:48px;display:flex;gap:16px;flex-wrap:wrap;justify-content:center;
+  animation:fadeUp .8s .65s both;
+}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 28px;border-radius:10px;
+  font-size:.88rem;font-weight:500;text-decoration:none;
+  transition:all .25s;cursor:pointer;border:none;
+  font-family:'Inter',sans-serif;letter-spacing:.02em;
+}
+.btn-primary{
+  background:var(--accent);color:#fff;
+  box-shadow:0 4px 24px var(--accent-glow);
+}
+.btn-primary:hover{background:#d4644a;box-shadow:0 6px 32px var(--accent-glow);transform:translateY(-1px)}
+.btn-ghost{
+  background:transparent;color:var(--text);
+  border:1px solid var(--border-hover);
+}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);background:rgba(232,114,74,.06)}
+
+/* Stack visual */
+.stack-visual{
+  margin-top:72px;
+  animation:fadeUp .8s .8s both;
+  position:relative;
+}
+.stack-visual .stack-label{
+  font-family:'IBM Plex Mono',monospace;font-size:.7rem;
+  color:var(--text-muted);letter-spacing:.15em;text-transform:uppercase;
+  margin-bottom:12px;
+}
+.stack-blocks{display:flex;gap:6px;justify-content:center;align-items:flex-end;height:90px}
+.stack-block{
+  width:42px;background:var(--bg-card);border:1px solid var(--border);
+  border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--text-muted);
+  transition:all .35s cubic-bezier(.34,1.56,1,1);
+}
+.stack-block.active{border-color:var(--accent);color:var(--accent);background:rgba(232,114,74,.08)}
+.stack-block:nth-child(1){height:40px;animation:stackIn .5s 1.2s both}
+.stack-block:nth-child(2){height:55px;animation:stackIn .5s 1.35s both}
+.stack-block:nth-child(3){height:70px;animation:stackIn .5s 1.5s both}
+.stack-block:nth-child(4){height:85px;animation:stackIn .5s 1.65s both}
+@keyframes stackIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── SECTION COMMON ─── */
+section{padding:100px 24px}
+.container{max-width:1080px;margin:0 auto}
+.section-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.7rem;color:var(--accent);letter-spacing:.2em;
+  text-transform:uppercase;margin-bottom:12px;
+}
+.section-title{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-.03em;
+  color:var(--text-bright);margin-bottom:16px;
+}
+.section-desc{
+  color:var(--text-muted);font-size:.95rem;max-width:560px;font-weight:300;line-height:1.8;
+}
+
+/* ─── ABOUT STRIP ─── */
+.about-strip{
+  background:linear-gradient(135deg,rgba(232,114,74,.04) 0%,transparent 60%);
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  padding:72px 24px;
+}
+.about-grid{
+  max-width:1080px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;
+}
+.about-text .section-label,.about-text .section-title{text-align:left}
+.about-text p{color:var(--text-muted);font-size:.92rem;line-height:1.9;margin-top:20px}
+.about-text p strong{color:var(--text)}
+.about-features{display:flex;flex-direction:column;gap:24px}
+.about-feat{
+  display:flex;gap:16px;align-items:flex-start;
+  padding:20px;border-radius:var(--radius);
+  background:var(--bg-card);border:1px solid var(--border);
+  transition:border-color .3s,transform .3s;
+}
+.about-feat:hover{border-color:var(--border-hover);transform:translateX(4px)}
+.feat-icon{
+  width:38px;height:38px;min-width:38px;border-radius:8px;
+  background:rgba(232,114,74,.1);display:flex;align-items:center;justify-content:center;
+  color:var(--accent);font-size:1.1rem;
+}
+.feat-title{font-family:'Syne',sans-serif;font-weight:600;font-size:.88rem;color:var(--text-bright);margin-bottom:3px}
+.feat-desc{font-size:.78rem;color:var(--text-muted);line-height:1.6}
+
+@media(max-width:700px){.about-grid{grid-template-columns:1fr}}
+
+/* ─── QUICK START ─── */
+.quickstart-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:48px;
+}
+@media(max-width:700px){.quickstart-grid{grid-template-columns:1fr}}
+
+.steps{display:flex;flex-direction:column;gap:0}
+.step{
+  display:flex;gap:20px;position:relative;padding-bottom:32px;
+}
+.step:last-child{padding-bottom:0}
+.step-line{
+  position:absolute;left:17px;top:38px;bottom:0;width:1px;
+  background:linear-gradient(to bottom,var(--accent),transparent);
+}
+.step:last-child .step-line{display:none}
+.step-num{
+  width:36px;height:36px;min-width:36px;border-radius:50%;
+  background:var(--accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;
+  position:relative;z-index:1;
+}
+.step-content h4{font-family:'Syne',sans-serif;font-weight:600;font-size:.92rem;color:var(--text-bright);margin-bottom:4px}
+.step-content p{font-size:.78rem;color:var(--text-muted);line-height:1.6}
+.step-content code{
+  font-family:'IBM Plex Mono',monospace;font-size:.72rem;
+  color:var(--accent);background:rgba(232,114,74,.1);padding:2px 8px;border-radius:4px;
+}
+
+/* ─── CODE BLOCKS ─── */
+.code-block{
+  background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;
+}
+.code-header{
+  display:flex;align-items:center;gap:8px;padding:12px 18px;
+  border-bottom:1px solid var(--border);
+  background:rgba(255,255,255,.02);
+}
+.code-dots{display:flex;gap:6px}
+.code-dots span{width:10px;height:10px;border-radius:50%;background:var(--border)}
+.code-dots span:first-child{background:#ff5f57}
+.code-dots span:nth-child(2){background:#febc2e}
+.code-dots span:last-child{background:#28ca41}
+.code-file{
+  font-family:'IBM Plex Mono',monospace;font-size:.68rem;
+  color:var(--text-muted);margin-left:auto;
+}
+pre{
+  padding:20px 22px;overflow-x:auto;
+  font-family:'IBM Plex Mono',monospace;font-size:.78rem;
+  line-height:1.9;color:var(--text);
+}
+
+/* ============================================================
+   SYNTAX HIGHLIGHTING — token colours inside code blocks.
+   Tokens are wrapped with these classes in the HTML:
+     .kw  keywords          (def, if, else, while, end)
+     .fn  builtins / calls  (print, dup, swap, +, …)
+     .num numbers           (42, 7, …)
+     .str string literals   ("Hello")
+     .cm  comments          (# …)
+     .op  operators
+   ============================================================ */
+.kw{color:#c9a545}
+.fn{color:#e8724a}
+.num{color:#7ec8e3}
+.str{color:#a8d8a0}
+.cm{color:#4a5568}
+.op{color:#d4d4d4}
+
+/* ─── REFERENCE SECTION ─── */
+.ref-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:20px;margin-top:40px;
+}
+.ref-card{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px;transition:border-color .3s,transform .3s;cursor:pointer;
+}
+.ref-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.ref-card-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.ref-icon{
+  width:34px;height:34px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:.9rem;
+}
+.ref-icon.stack{background:rgba(232,114,74,.12);color:var(--accent)}
+.ref-icon.math{background:rgba(126,200,227,.12);color:#7ec8e3}
+.ref-icon.io{background:rgba(168,216,160,.12);color:#a8d8a0}
+.ref-icon.flow{background:rgba(201,165,69,.12);color:var(--accent2)}
+.ref-icon.string{background:rgba(180,160,230,.12);color:#b4a0e6}
+.ref-card h4{font-family:'Syne',sans-serif;font-weight:600;font-size:.88rem;color:var(--text-bright)}
+.ref-card p{font-size:.76rem;color:var(--text-muted);line-height:1.6}
+
+.ref-detail{
+  display:none;margin-top:40px;padding-top:40px;border-top:1px solid var(--border);
+}
+.ref-detail.open{display:block;animation:fadeUp .4s both}
+.ref-detail-header{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;
+}
+.ref-detail-header h3{font-family:'Syne',sans-serif;font-weight:700;font-size:1.3rem;color:var(--text-bright)}
+.close-btn{
+  background:none;border:1px solid var(--border);color:var(--text-muted);
+  width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:1rem;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;
+}
+.close-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+.ops-table{width:100%;border-collapse:collapse;margin:20px 0}
+.ops-table th{
+  text-align:left;font-size:.7rem;color:var(--text-muted);
+  letter-spacing:.1em;text-transform:uppercase;font-weight:500;
+  padding:10px 14px;border-bottom:1px solid var(--border);
+}
+.ops-table td{
+  padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.04);
+  font-size:.8rem;vertical-align:middle;
+}
+.ops-table tr:hover td{background:rgba(255,255,255,.02)}
+.ops-table .op-name{
+  font-family:'IBM Plex Mono',monospace;color:var(--accent);font-weight:500;font-size:.78rem;
+}
+.ops-table .op-stack{
+  font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--text-muted);
+}
+.ops-table .op-desc{color:var(--text);font-size:.78rem}
+
+/* ─── ARCHITECTURE ─── */
+.arch-flow{
+  display:flex;align-items:center;justify-content:center;
+  gap:12px;flex-wrap:wrap;margin-top:48px;padding:40px;
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);
+}
+.arch-stage{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  padding:24px 20px;background:rgba(255,255,255,.03);border-radius:10px;
+  border:1px solid var(--border);min-width:130px;transition:border-color .3s;
+}
+.arch-stage:hover{border-color:var(--accent)}
+.arch-stage-icon{font-size:1.5rem}
+.arch-stage h5{
+  font-family:'Syne',sans-serif;font-weight:600;font-size:.78rem;
+  color:var(--text-bright);text-align:center;
+}
+.arch-stage p{font-size:.68rem;color:var(--text-muted);text-align:center;line-height:1.5}
+.arch-arrow{color:var(--accent);font-size:1.3rem;opacity:.6}
+
+/* ─── EXAMPLES ─── */
+.examples-tabs{display:flex;gap:8px;margin-top:40px;flex-wrap:wrap}
+.ex-tab{
+  padding:8px 18px;border-radius:8px;border:1px solid var(--border);
+  background:transparent;color:var(--text-muted);font-size:.78rem;
+  font-family:'Inter',sans-serif;cursor:pointer;transition:all .25s;
+}
+.ex-tab:hover{border-color:var(--border-hover);color:var(--text)}
+.ex-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.example-panel{display:none;margin-top:20px;animation:fadeUp .35s both}
+.example-panel.active{display:block}
+
+/* ─── CONTACT ─── */
+.contact-wrap{
+  max-width:720px;margin:0 auto;text-align:center;
+}
+.contact-cards{
+  display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:48px;
+}
+@media(max-width:600px){.contact-cards{grid-template-columns:1fr}}
+.contact-card{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:32px 24px;text-align:left;
+  transition:border-color .3s,transform .3s;
+}
+.contact-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.contact-card-avatar{
+  width:52px;height:52px;border-radius:50%;
+  background:var(--bg-card-hover);border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;margin-bottom:16px;
+}
+.contact-card h4{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;
+  color:var(--text-bright);margin-bottom:4px;
+}
+.contact-card .contact-role{
+  font-size:.75rem;color:var(--text-muted);margin-bottom:20px;
+  font-family:'IBM Plex Mono',monospace;letter-spacing:.04em;
+}
+.contact-link{
+  display:flex;align-items:center;gap:10px;
+  color:var(--text-muted);text-decoration:none;font-size:.8rem;
+  padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);
+  transition:color .2s;
+}
+.contact-link:last-child{border-bottom:none}
+.contact-link:hover{color:var(--accent)}
+.contact-link svg{width:15px;height:15px;opacity:.5;flex-shrink:0}
+.contact-link:hover svg{opacity:1}
+.contact-link span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.contact-bottom{
+  margin-top:48px;padding-top:32px;border-top:1px solid var(--border);
+  color:var(--text-muted);font-size:.82rem;line-height:1.8;
+}
+.contact-bottom a{color:var(--accent);text-decoration:none}
+.contact-bottom a:hover{text-decoration:underline}
+
+/* ─── FOOTER ─── */
+footer{
+  border-top:1px solid var(--border);
+  padding:60px 24px 40px;
+}
+.footer-grid{
+  max-width:1080px;margin:0 auto;
+  display:grid;grid-template-columns:1.8fr 1fr;gap:48px;
+}
+@media(max-width:600px){.footer-grid{grid-template-columns:1fr}}
+.footer-brand{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;color:var(--text-bright);margin-bottom:12px}
+.footer-brand span{color:var(--accent)}
+.footer-col h5{font-family:'Syne',sans-serif;font-weight:600;font-size:.8rem;color:var(--text-bright);margin-bottom:16px;letter-spacing:.08em;text-transform:uppercase}
+.footer-col a{display:block;color:var(--text-muted);text-decoration:none;font-size:.8rem;padding:4px 0;transition:color .2s}
+.footer-col a:hover{color:var(--accent)}
+.footer-col p{color:var(--text-muted);font-size:.78rem;line-height:1.7}
+.footer-bottom{
+  max-width:1080px;margin:40px auto 0;padding-top:24px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+}
+.footer-bottom p{font-size:.72rem;color:var(--text-muted)}
+.footer-bottom a{color:var(--accent);text-decoration:none}
+
+/* ─── UTILITY ─── */
+.text-center{text-align:center}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.25,.46,.45,.94),transform .7s cubic-bezier(.25,.46,.45,.94)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.dl-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--text-muted);
+  margin-top:12px;
+}
+.dl-badge svg{width:12px;height:12px;fill:currentColor}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">Basalt<span>.</span></a>
+  <div class="nav-links">
+    <a href="#about" class="active">About</a>
+    <a href="#quickstart">Quick Start</a>
+    <a href="#reference">Reference</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#examples">Examples</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-glow"></div>
+  <div class="hero-badge">Stack-Based · Open Source · Python 3</div>
+  <h1>
+    <span class="dim">Learn the</span><br>
+    <span class="accent">Stack.</span>
+  </h1>
+  <p class="hero-sub">
+    Basalt is a minimalist stack-oriented programming language designed to teach the fundamentals of stack-based computing. No parentheses. No indentation. No noise — just the pure mechanics of a stack.
+  </p>
+  <div class="hero-actions">
+    <a href="https://github.com/oberhalsi/basalt/archive/refs/heads/main.zip" class="btn btn-primary" target="_blank">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download Basalt
+    </a>
+    <a href="https://github.com/oberhalsi/basalt" class="btn btn-ghost" target="_blank">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+      GitHub Repo
+    </a>
+  </div>
+  <div class="stack-visual">
+    <div class="stack-label">← the stack</div>
+    <div class="stack-blocks">
+      <div class="stack-block">42</div>
+      <div class="stack-block active">7</div>
+      <div class="stack-block">+</div>
+      <div class="stack-block active">49</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="about-strip">
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <div class="section-label">About Basalt</div>
+      <h2 class="section-title">Built to teach.<br>Designed to clarify.</h2>
+      <p>
+        Basalt strips programming down to its <strong>raw fundamentals</strong>. Every operation is an explicit manipulation of a single data structure — the stack. There are no hidden abstractions, no syntactic sugar hiding complexity. What you see is exactly what the interpreter executes.
+      </p>
+      <p>
+        Written in <strong>Python 3</strong> with a custom-built Lexer and Parser, Basalt is fully open source. You can read every line of the interpreter and trace exactly how your code is processed — from raw text to executed output.
+      </p>
+      <div class="dl-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        MIT License · Source on <a href="https://github.com/oberhalsi/basalt" style="color:var(--accent);text-decoration:none" target="_blank">GitHub</a>
+      </div>
+    </div>
+    <div class="about-features reveal" style="transition-delay:.15s">
+      <div class="about-feat">
+        <div class="feat-icon">⬛</div>
+        <div>
+          <div class="feat-title">Stack-Oriented</div>
+          <div class="feat-desc">All computation flows through a single stack. Push values, apply operations, read results — no variable declarations needed.</div>
+        </div>
+      </div>
+      <div class="about-feat">
+        <div class="feat-icon">✦</div>
+        <div>
+          <div class="feat-title">Zero Noise</div>
+          <div class="feat-desc">No parentheses, no indentation, no semicolons. Basalt's syntax is intentionally stripped bare so you focus on the stack.</div>
+        </div>
+      </div>
+      <div class="about-feat">
+        <div class="feat-icon">🔍</div>
+        <div>
+          <div class="feat-title">Fully Transparent</div>
+          <div class="feat-desc">The entire interpreter is open source. Trace how the lexer tokenizes input, how the parser builds structure, and how each instruction executes.</div>
+        </div>
+      </div>
+      <div class="about-feat">
+        <div class="feat-icon">🎓</div>
+        <div>
+          <div class="feat-title">Learn by Doing</div>
+          <div class="feat-desc">Basalt is purpose-built for learning. Master stack manipulation, understand how real low-level systems work, build from the ground up.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK START -->
+<section id="quickstart">
+  <div class="container">
+    <div class="text-center reveal">
+      <div class="section-label">Getting Started</div>
+      <h2 class="section-title">Quick Start</h2>
+      <p class="section-desc" style="margin:0 auto">Get Basalt running on your machine in under a minute. All you need is Python 3.</p>
+    </div>
+    <div class="quickstart-grid">
+      <div class="steps reveal" style="transition-delay:.1s">
+        <div class="step">
+          <div class="step-line"></div>
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Install Python 3</h4>
+            <p>Make sure you have <code>Python 3</code> installed on your system. Download it from <a href="https://python.org" style="color:var(--accent);text-decoration:none" target="_blank">python.org</a> if you haven't already.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-line"></div>
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>Download Basalt</h4>
+            <p>Download the repository as a <code>.zip</code> archive from GitHub and extract it to a folder of your choice.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-line"></div>
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>Run Your First Program</h4>
+            <p>Navigate to the Basalt folder and run a <code>.b</code> file using the interpreter. See the example on the right.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>Explore & Experiment</h4>
+            <p>Look through the <code>tests/</code> folder for example programs. Modify them, break them, and learn how the stack works.</p>
+          </div>
+        </div>
+      </div>
+      <div class="reveal" style="transition-delay:.2s">
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-file">terminal</span>
+          </div>
+          <pre><span class="cm"># Navigate to the basalt directory</span>
+<span class="kw">cd</span> basalt
+
+<span class="cm"># Run a Basalt program</span>
+<span class="fn">python</span> main.py tests/math.b
+
+<span class="cm"># Output: 49</span></pre>
+        </div>
+        <div class="code-block" style="margin-top:16px">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-file">simple.b</span>
+          </div>
+          <pre><span class="cm"># Push two numbers and add them</span>
+<span class="num">7</span> <span class="num">42</span> <span class="fn">+</span> <span class="fn">print</span>
+
+<span class="cm"># Output: 49</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REFERENCE -->
+<section id="reference">
+  <div class="container">
+    <div class="text-center reveal">
+      <div class="section-label">Language Reference</div>
+      <h2 class="section-title">Built-in Operations</h2>
+      <p class="section-desc" style="margin:0 auto">Every operation in Basalt interacts directly with the stack. Click a category to explore its operations in detail.</p>
+    </div>
+    <div class="ref-grid" id="refGrid">
+      <div class="ref-card reveal" onclick="toggleRef('stack-ops')" style="transition-delay:.05s">
+        <div class="ref-card-header">
+          <div class="ref-icon stack">⬛</div>
+          <h4>Stack Operations</h4>
+        </div>
+        <p>Core stack manipulation: push, pop, duplicate, swap, and more. The foundation of every Basalt program.</p>
+      </div>
+      <div class="ref-card reveal" onclick="toggleRef('math-ops')" style="transition-delay:.1s">
+        <div class="ref-card-header">
+          <div class="ref-icon math">∑</div>
+          <h4>Math Operations</h4>
+        </div>
+        <p>Arithmetic and comparison operators that pop operands from the stack, compute a result, and push it back.</p>
+      </div>
+      <div class="ref-card reveal" onclick="toggleRef('io-ops')" style="transition-delay:.15s">
+        <div class="ref-card-header">
+          <div class="ref-icon io">⇄</div>
+          <h4>I/O Operations</h4>
+        </div>
+        <p>Print values to stdout, read user input, and interact with the outside world from within your stack program.</p>
+      </div>
+      <div class="ref-card reveal" onclick="toggleRef('flow-ops')" style="transition-delay:.2s">
+        <div class="ref-card-header">
+          <div class="ref-icon flow">⟳</div>
+          <h4>Control Flow</h4>
+        </div>
+        <p>Conditionals, loops, and user-defined functions. Control the direction of execution using stack values.</p>
+      </div>
+      <div class="ref-card reveal" onclick="toggleRef('string-ops')" style="transition-delay:.25s">
+        <div class="ref-card-header">
+          <div class="ref-icon string">Aa</div>
+          <h4>String Operations</h4>
+        </div>
+        <p>Manipulate text: concatenation, length, and string conversion utilities built into the language.</p>
+      </div>
+    </div>
+
+    <div class="ref-detail" id="stack-ops">
+      <div class="ref-detail-header">
+        <h3>⬛ Stack Operations</h3>
+        <button class="close-btn" onclick="toggleRef('stack-ops')">✕</button>
+      </div>
+      <table class="ops-table">
+        <thead><tr><th>Operation</th><th>Stack Effect</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="op-name">push &lt;val&gt;</td><td class="op-stack">→ [val]</td><td class="op-desc">Push a literal value onto the top of the stack. Numbers and strings can be pushed directly by writing them.</td></tr>
+          <tr><td class="op-name">pop</td><td class="op-stack">[a] →</td><td class="op-desc">Remove the top element from the stack and discard it.</td></tr>
+          <tr><td class="op-name">dup</td><td class="op-stack">[a] → [a a]</td><td class="op-desc">Duplicate the top element of the stack.</td></tr>
+          <tr><td class="op-name">swap</td><td class="op-stack">[a b] → [b a]</td><td class="op-desc">Swap the top two elements on the stack.</td></tr>
+          <tr><td class="op-name">over</td><td class="op-stack">[a b] → [a b a]</td><td class="op-desc">Copy the second element to the top of the stack.</td></tr>
+          <tr><td class="op-name">rot</td><td class="op-stack">[a b c] → [b c a]</td><td class="op-desc">Rotate the top three elements, bringing the third to the top.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ref-detail" id="math-ops">
+      <div class="ref-detail-header">
+        <h3>∑ Math Operations</h3>
+        <button class="close-btn" onclick="toggleRef('math-ops')">✕</button>
+      </div>
+      <table class="ops-table">
+        <thead><tr><th>Operation</th><th>Stack Effect</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="op-name">+</td><td class="op-stack">[a b] → [a+b]</td><td class="op-desc">Pop two values, push their sum.</td></tr>
+          <tr><td class="op-name">-</td><td class="op-stack">[a b] → [a−b]</td><td class="op-desc">Pop two values, push their difference (second minus top).</td></tr>
+          <tr><td class="op-name">*</td><td class="op-stack">[a b] → [a×b]</td><td class="op-desc">Pop two values, push their product.</td></tr>
+          <tr><td class="op-name">/</td><td class="op-stack">[a b] → [a÷b]</td><td class="op-desc">Pop two values, push integer division result.</td></tr>
+          <tr><td class="op-name">%</td><td class="op-stack">[a b] → [a%b]</td><td class="op-desc">Pop two values, push the modulo (remainder).</td></tr>
+          <tr><td class="op-name">==</td><td class="op-stack">[a b] → [0|1]</td><td class="op-desc">Push 1 if the top two values are equal, 0 otherwise.</td></tr>
+          <tr><td class="op-name">&lt;</td><td class="op-stack">[a b] → [0|1]</td><td class="op-desc">Push 1 if second is less than top, 0 otherwise.</td></tr>
+          <tr><td class="op-name">&gt;</td><td class="op-stack">[a b] → [0|1]</td><td class="op-desc">Push 1 if second is greater than top, 0 otherwise.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ref-detail" id="io-ops">
+      <div class="ref-detail-header">
+        <h3>⇄ I/O Operations</h3>
+        <button class="close-btn" onclick="toggleRef('io-ops')">✕</button>
+      </div>
+      <table class="ops-table">
+        <thead><tr><th>Operation</th><th>Stack Effect</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="op-name">print</td><td class="op-stack">[a] →</td><td class="op-desc">Pop the top value and print it to standard output.</td></tr>
+          <tr><td class="op-name">println</td><td class="op-stack">[a] →</td><td class="op-desc">Pop the top value and print it followed by a newline.</td></tr>
+          <tr><td class="op-name">input</td><td class="op-stack">→ [str]</td><td class="op-desc">Read a line of text from standard input and push it onto the stack.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ref-detail" id="flow-ops">
+      <div class="ref-detail-header">
+        <h3>⟳ Control Flow</h3>
+        <button class="close-btn" onclick="toggleRef('flow-ops')">✕</button>
+      </div>
+      <table class="ops-table">
+        <thead><tr><th>Operation</th><th>Stack Effect</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="op-name">if … else … end</td><td class="op-stack">[cond] →</td><td class="op-desc">Pop a condition. If truthy (non-zero), execute the <em>if</em> block; otherwise, execute the <em>else</em> block.</td></tr>
+          <tr><td class="op-name">while … end</td><td class="op-stack">[cond] →</td><td class="op-desc">Repeatedly evaluate the condition and execute the body while it is truthy.</td></tr>
+          <tr><td class="op-name">def name … end</td><td class="op-stack">—</td><td class="op-desc">Define a named function. The body between <code>def</code> and <code>end</code> runs when the function name is called.</td></tr>
+          <tr><td class="op-name">name</td><td class="op-stack">varies</td><td class="op-desc">Call a previously defined function by name. The function operates on the current stack.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ref-detail" id="string-ops">
+      <div class="ref-detail-header">
+        <h3>Aa String Operations</h3>
+        <button class="close-btn" onclick="toggleRef('string-ops')">✕</button>
+      </div>
+      <table class="ops-table">
+        <thead><tr><th>Operation</th><th>Stack Effect</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="op-name">"text"</td><td class="op-stack">→ [str]</td><td class="op-desc">A string literal. Anything enclosed in double quotes is pushed onto the stack as a string.</td></tr>
+          <tr><td class="op-name">concat</td><td class="op-stack">[a b] → [ab]</td><td class="op-desc">Pop two strings and push their concatenation.</td></tr>
+          <tr><td class="op-name">len</td><td class="op-stack">[str] → [n]</td><td class="op-desc">Pop a string, push its length as a number.</td></tr>
+          <tr><td class="op-name">tostr</td><td class="op-stack">[a] → [str]</td><td class="op-desc">Convert the top value to its string representation.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture">
+  <div class="container">
+    <div class="text-center reveal">
+      <div class="section-label">Under the Hood</div>
+      <h2 class="section-title">Architecture</h2>
+      <p class="section-desc" style="margin:0 auto">Basalt is built in Python 3 using a custom Lexer and Parser. The pipeline is intentionally simple so you can follow every step from source code to execution.</p>
+    </div>
+    <div class="arch-flow reveal" style="transition-delay:.15s">
+      <div class="arch-stage">
+        <div class="arch-stage-icon">📄</div>
+        <h5>Source File</h5>
+        <p>Your <code>.b</code> file is read as raw text</p>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-stage">
+        <div class="arch-stage-icon">🔤</div>
+        <h5>Lexer</h5>
+        <p>Tokenizes the source into a stream of tokens</p>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-stage">
+        <div class="arch-stage-icon">🌳</div>
+        <h5>Parser</h5>
+        <p>Transforms tokens into an abstract syntax tree</p>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-stage">
+        <div class="arch-stage-icon">⚙️</div>
+        <h5>Interpreter</h5>
+        <p>Walks the AST and executes each node, managing the stack</p>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-stage">
+        <div class="arch-stage-icon">📊</div>
+        <h5>Output</h5>
+        <p>Results are printed or the final stack state is returned</p>
+      </div>
+    </div>
+    <div class="reveal" style="margin-top:40px;transition-delay:.25s">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-file">Example: Running Basalt</span>
+        </div>
+        <pre><span class="cm"># The interpreter processes .b files through</span>
+<span class="cm"># the lexer → parser → interpreter pipeline</span>
+
+<span class="cm"># To view the actual implementation, check:</span>
+<span class="cm"># - src/lexer.py</span>
+<span class="cm"># - src/parser.py</span>
+<span class="cm"># - src/interpreter.py</span>
+<span class="cm"># - main.py (entry point)</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXAMPLES -->
+<section id="examples">
+  <div class="container">
+    <div class="text-center reveal">
+      <div class="section-label">Examples</div>
+      <h2 class="section-title">See Basalt in Action</h2>
+      <p class="section-desc" style="margin:0 auto">Example programs demonstrating the core concepts of stack-based programming. Check the tests/ folder in the repo for more.</p>
+    </div>
+    <div class="examples-tabs reveal" style="transition-delay:.1s">
+      <button class="ex-tab active" onclick="switchExample('math')">Math</button>
+      <button class="ex-tab" onclick="switchExample('factorial')">Factorial</button>
+      <button class="ex-tab" onclick="switchExample('stack')">Stack Manipulation</button>
+    </div>
+
+    <div class="example-panel active reveal" id="ex-math" style="transition-delay:.15s">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-file">tests/math.b — Basic Arithmetic</span>
+        </div>
+        <pre><span class="cm"># Basic arithmetic operations</span>
+<span class="cm"># Numbers are pushed onto the stack, operators consume them</span>
+
+<span class="num">7</span> <span class="num">42</span> <span class="fn">+</span> <span class="fn">print</span>     <span class="cm"># → 49</span>
+
+<span class="num">100</span> <span class="num">37</span> <span class="fn">-</span> <span class="fn">print</span>   <span class="cm"># → 63</span>
+
+<span class="num">6</span> <span class="num">8</span> <span class="fn">*</span> <span class="fn">print</span>      <span class="cm"># → 48</span>
+
+<span class="num">144</span> <span class="num">12</span> <span class="fn">/</span> <span class="fn">print</span>   <span class="cm"># → 12</span>
+
+<span class="num">17</span> <span class="num">5</span> <span class="fn">%</span> <span class="fn">print</span>     <span class="cm"># → 2</span></pre>
+      </div>
+      <p style="margin-top:16px;color:var(--text-muted);font-size:.82rem">
+        Numbers are pushed onto the stack left-to-right. Operators pop their operands and push the result back. The <code style="color:var(--accent)">print</code> operation pops and displays the top value.
+      </p>
+    </div>
+
+    <div class="example-panel" id="ex-factorial">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-file">tests/factorial.b — Recursion</span>
+        </div>
+        <pre><span class="cm"># Compute factorial recursively</span>
+<span class="kw">def</span> factorial
+  <span class="fn">dup</span> <span class="num">1</span> <span class="fn">></span>
+  <span class="kw">if</span>
+    <span class="fn">dup</span> <span class="num">1</span> <span class="fn">-</span> factorial <span class="fn">*</span>
+  <span class="kw">else</span>
+    <span class="fn">pop</span> <span class="num">1</span>
+  <span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="cm"># Compute 5! = 120</span>
+<span class="num">5</span> factorial <span class="fn">print</span></pre>
+      </div>
+      <p style="margin-top:16px;color:var(--text-muted);font-size:.82rem">
+        Functions are defined with <code style="color:var(--accent)">def name … end</code> and called by name. This recursive factorial duplicates the value, checks if it's greater than 1, and recurses or returns 1.
+      </p>
+    </div>
+
+    <div class="example-panel" id="ex-stack">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-file">Stack Manipulation Demo</span>
+        </div>
+        <pre><span class="cm"># Demonstrate core stack operations</span>
+
+<span class="num">10</span> <span class="fn">dup</span>              <span class="cm"># stack: [10 10]</span>
+<span class="fn">print</span> <span class="fn">print</span>          <span class="cm"># prints: 10, then 10</span>
+
+<span class="num">1</span> <span class="num">2</span> <span class="fn">swap</span>           <span class="cm"># stack: [2 1]</span>
+<span class="fn">print</span> <span class="fn">print</span>          <span class="cm"># prints: 1, then 2</span>
+
+<span class="num">3</span> <span class="num">4</span> <span class="fn">over</span>           <span class="cm"># stack: [3 4 3]</span>
+<span class="fn">print</span> <span class="fn">print</span> <span class="fn">print</span>    <span class="cm"># prints: 3, 4, 3</span>
+
+<span class="num">5</span> <span class="num">6</span> <span class="num">7</span> <span class="fn">rot</span>         <span class="cm"># stack: [6 7 5]</span>
+<span class="fn">print</span> <span class="fn">print</span> <span class="fn">print</span>    <span class="cm"># prints: 5, 7, 6</span></pre>
+      </div>
+      <p style="margin-top:16px;color:var(--text-muted);font-size:.82rem">
+        <code style="color:var(--accent)">dup</code> copies the top, <code style="color:var(--accent)">swap</code> exchanges the top two, <code style="color:var(--accent)">over</code> copies the second element to the top, and <code style="color:var(--accent)">rot</code> rotates the top three. These are the building blocks of all stack manipulation.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="container">
+    <div class="contact-wrap">
+      <div class="text-center reveal">
+        <div class="section-label">Contact</div>
+        <h2 class="section-title">Get in Touch</h2>
+        <p class="section-desc" style="margin:0 auto">Have a question, idea, or just want to say hi? We'd love to hear from you.</p>
+      </div>
+      <div class="contact-cards">
+
+        <!-- Oberhalsi -->
+        <div class="contact-card reveal" style="transition-delay:.08s">
+          <div class="contact-card-avatar">🧑‍💻</div>
+          <h4>Oberhalsi</h4>
+          <div class="contact-role">Creator · Developer</div>
+          <a href="mailto:oberhalsi.dev@gmail.com" class="contact-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span>oberhalsi.dev@gmail.com</span>
+          </a>
+          <a href="https://github.com/oberhalsi" target="_blank" class="contact-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+            <span>github.com/oberhalsi</span>
+          </a>
+        </div>
+
+        <!-- Alxgraphy -->
+        <div class="contact-card reveal" style="transition-delay:.16s">
+          <div class="contact-card-avatar">🎨</div>
+          <h4>Alexander Wondwossen</h4>
+          <div class="contact-role">Designer · Lead Developer · @alxgraphy</div>
+          <a href="mailto:alxgraphy@icloud.com" class="contact-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span>alxgraphy@icloud.com</span>
+          </a>
+          <a href="https://github.com/alxgraphy" target="_blank" class="contact-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+            <span>github.com/alxgraphy</span>
+          </a>
+        </div>
+
+      </div>
+      <div class="contact-bottom reveal" style="transition-delay:.22s">
+        Found a bug or have a feature idea? Open an issue or pull request on the <a href="https://github.com/oberhalsi/basalt" target="_blank">Basalt GitHub repository</a>.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">Basalt<span>.</span></div>
+      <p class="footer-col" style="margin-top:12px">A minimalist stack-based programming language designed to teach the fundamentals of stack-oriented computing. Open source, built in Python 3.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Resources</h5>
+      <a href="https://github.com/oberhalsi/basalt" target="_blank">GitHub Repository</a>
+      <a href="https://github.com/oberhalsi/basalt/archive/refs/heads/main.zip">Download Source</a>
+      <a href="https://github.com/oberhalsi/basalt/tree/main/docs" target="_blank">Documentation</a>
+      <a href="https://github.com/oberhalsi/basalt/tree/main/tests" target="_blank">Test Files</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Basalt. Released under the <a href="https://github.com/oberhalsi/basalt/blob/main/LICENSE" target="_blank">MIT License</a>.</p>
+    <p><strong>Oberhalsi</strong> (<a href="https://github.com/oberhalsi" target="_blank">@Oberhalsi</a>) & <strong>Alexander Wondwossen</strong> (<a href="https://github.com/alxgraphy" target="_blank">@alxgraphy</a>)<br>Made with ❤️ from two kids who had an idea in Toronto, Canada 🇨🇦</p>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script>
+// ─── Scroll Nav ───
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 40);
+  const sections = ['about','quickstart','reference','architecture','examples','contact'];
+  let current = 'about';
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if(el && window.scrollY >= el.offsetTop - 200) current = id;
+  });
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#'+current);
+  });
+});
+
+// ─── Scroll Reveal ───
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+reveals.forEach(el => observer.observe(el));
+
+// ─── Reference Toggle ───
+function toggleRef(id) {
+  const panel = document.getElementById(id);
+  const isOpen = panel.classList.contains('open');
+  document.querySelectorAll('.ref-detail').forEach(p => p.classList.remove('open'));
+  if(!isOpen) {
+    panel.classList.add('open');
+    panel.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+}
+
+// ─── Example Tabs ───
+function switchExample(name) {
+  document.querySelectorAll('.ex-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.example-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.ex-tab[onclick*="${name}"]`).classList.add('active');
+  document.getElementById('ex-'+name).classList.add('active');
+}
+
+// ─── Smooth nav links ───
+document.querySelectorAll('.nav-links a').forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    const targetId = this.getAttribute('href').slice(1);
+    const targetEl = document.getElementById(targetId);
+    if(targetEl) {
+      window.scrollTo({
+        top: targetEl.offsetTop - 80,
+        behavior: 'smooth'
+      });
+    }
+  });
+});
+</script>
+
+</body>
+</html>
