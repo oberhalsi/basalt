@@ -174,7 +174,7 @@ Contributions are welcome! Feel free to open issues or submit pull requests.
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
-6. Validate Changes: Run python test_basalt.py to ensure all core mechanics and stack operations remain intact.
+6. Validate Changes: Run `test_basalt` to ensure all core mechanics and stack operations remain intact.
 
 ## License
 
