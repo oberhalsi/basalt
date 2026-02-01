@@ -3,6 +3,7 @@ from src.ops.io_ops import put, ask
 from src.ops.stack_ops import dup, drop, swap, clear
 from src.ops.logic_ops import eq, gt, lt
 from src.ops.var_ops import assign, call
+from src.ops.str_ops import concat
 from src.utils import Error
 
 CMDS = {
@@ -27,6 +28,8 @@ CMDS = {
     # Variable ops
     "=": lambda stack: assign(stack),
     "call": lambda stack: call(stack),
+    # String ops
+    "str+": lambda stack: concat(stack)
 }
 
 def execute(tokens, stack, labels=None):
