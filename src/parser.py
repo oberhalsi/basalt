@@ -3,6 +3,7 @@ from src.ops.io_ops import put, ask
 from src.ops.stack_ops import dup, drop, swap, clear
 from src.ops.logic_ops import eq, gt, lt
 from src.ops.var_ops import assign, call
+from src.utils import Error
 
 CMDS = {
     # Math ops
@@ -28,31 +29,46 @@ CMDS = {
     "call": lambda stack: call(stack),
 }
 
-def execute(tokens, stack):
-    # Map labels to their index
-    labels = {t[:-1]: i for i, t in enumerate(tokens) if t.endswith(':')}
+def execute(tokens, stack, labels=None):
+    if labels is None:
+        labels = {t[:-1]: i for i, t in enumerate(tokens) if t.endswith(':')}
     
     pc = 0
     while pc < len(tokens):
         token = tokens[pc]
-        
+
+        if token == "{":
+            block, depth = [], 1
+            pc += 1
+            while pc < len(tokens) and depth > 0:
+                if tokens[pc] == "{": depth += 1
+                elif tokens[pc] == "}": depth -= 1
+                if depth > 0: block.append(tokens[pc])
+                pc += 1
+            stack.append(block)
+            continue
+
+        if token == "run":
+            if not stack: Error("StackUnderflow", "nothing to run", "run")
+            block = stack.pop()
+            if isinstance(block, list):
+                execute(block, stack, labels)
+            pc += 1
+            continue
+
         if token in CMDS:
             CMDS[token](stack)
         elif token == "jump":
-            target = stack.pop()
-            pc = labels[target]
+            pc = labels[stack.pop()]
             continue 
         elif token == "if_jump":
-            target = stack.pop()
-            condition = stack.pop()
-            if condition:
+            target, cond = stack.pop(), stack.pop()
+            if cond:
                 pc = labels[target]
                 continue
         elif token.startswith('"') and token.endswith('"'):
             stack.append(token[1:-1])
         elif not token.endswith(':'):
-            try:
-                stack.append(int(token))
-            except ValueError:
-                pass
+            try: stack.append(int(token))
+            except ValueError: pass
         pc += 1

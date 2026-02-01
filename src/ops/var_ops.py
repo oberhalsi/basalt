@@ -5,7 +5,6 @@ variables = {}
 def assign(stack):
     if len(stack) < 2:
         Error("StackUnderflow", "= requires a value and a name", "=")
-        return
     name = stack.pop()
     val = stack.pop()
     variables[name] = val
@@ -13,7 +12,6 @@ def assign(stack):
 def call(stack):
     if not stack:
         Error("StackUnderflow", "call requires a variable name", "call")
-        return
     name = stack.pop()
     if name in variables:
         stack.append(variables[name])

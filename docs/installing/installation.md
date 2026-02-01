@@ -12,5 +12,11 @@ Now you can run `basalt` from anywhere
 ### How to run programs
 Once Basalt is added to your environment variables, you can run any `.b` file from your terminal using the following command:
 
-Bash
 ```basalt path/to/yourfile.b```
+
+### Test Basalt
+After installing, you are encouraged test Basalt. Within the folder use the command:
+
+```Test_Basalt```
+
+This ensures that all the files are properly installed and that your basalt is working as it should.
