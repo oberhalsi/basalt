@@ -55,3 +55,17 @@ def mod(stack):
         Error("MathError", "Modulo by zero", "%")
         return
     stack.append(a % b)
+
+def power(stack):
+    if len(stack) < 2:
+        Error("StackUnderflow", "** requires two values", "**")
+        return
+
+    exponent, base = stack.pop(), stack.pop()
+    
+    try:
+        stack.append(base ** exponent)
+    except ZeroDivisionError:
+        Error("MathError", "Zero cannot be raised to a negative power", "**")
+    except OverflowError:
+        Error("MathError", "Result too large", "**")

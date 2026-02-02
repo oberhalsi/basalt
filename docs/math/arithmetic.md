@@ -20,6 +20,7 @@ Unlike many low-level languages, Basalt includes built-in safety checks for all 
 | `*` | Multiplication | `( a b -- prod )` | Supports integer multiplication and string repetition. |
 | `/` | Integer Division | `( a b -- quot )` | Uses floor division (`//`). Division by zero is protected. |
 | `%` | Modulo | `( a b -- rem )` | Returns the remainder of `a / b`. |
+| `^` | Exponentiation | `( a b -- a^b )` | Returns `a` to the power of `b`. |
 
 ---
 

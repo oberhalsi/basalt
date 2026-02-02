@@ -1,7 +1,7 @@
-from src.ops.math_ops import add, sub, mul, div, mod
+from src.ops.math_ops import add, sub, mul, div, mod, power
 from src.ops.io_ops import put, ask, dot
 from src.ops.stack_ops import dup, drop, swap, clear, pick, rot, over
-from src.ops.logic_ops import eq, gt, lt, and_op, or_op, not_op
+from src.ops.logic_ops import eq, gt, lt, and_op, or_op, not_op, xor_op
 from src.ops.var_ops import assign, call
 from src.ops.str_ops import concat
 from src.utils import Error
@@ -13,6 +13,7 @@ CMDS = {
     "*": lambda stack: mul(stack),
     "/": lambda stack: div(stack),
     "%": lambda stack: mod(stack),
+    "^": lambda stack: power(stack),
     # IO ops
     "print": lambda stack: put(stack),
     "in": lambda stack: ask(stack),
@@ -32,6 +33,7 @@ CMDS = {
     "and": lambda stack: and_op(stack),
     "or": lambda stack: or_op(stack),
     "not": lambda stack: not_op(stack),
+    "xor": lambda stack: xor_op(stack),
     # Variable ops
     "=": lambda stack: assign(stack),
     "call": lambda stack: call(stack),

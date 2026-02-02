@@ -17,7 +17,7 @@ def dot(stack):
 
 def ask(stack):
     try:
-        user_input = input("> ") 
+        user_input = input("") 
         
         # Try to treat it as a number if possible
         try:

@@ -48,3 +48,9 @@ def or_op(stack):
         stack.append(1 if (stack.pop() | stack.pop()) else 0)
     except IndexError:
         Error("StackUnderflow", "stack too shallow for or", "or")
+
+def xor_op(stack):
+    try:
+        stack.append(1 if (stack.pop() ^ stack.pop()) else 0)
+    except IndexError:
+        Error("StackUnderflow", "stack too shallow for xor", "xor")
