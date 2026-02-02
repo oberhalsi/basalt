@@ -34,9 +34,14 @@ git clone https://github.com/oberhalsi/basalt.git
 cd basalt
 ```
 
-2. Run your first program:
+2. Quickly run your first program:
 ```bash
 python main.py tests/math.b
+```
+
+3. Or if you have completed the full installation:
+```bash
+basalt yourfile.b
 ```
 
 ### Your First Program

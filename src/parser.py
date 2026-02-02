@@ -1,6 +1,6 @@
 from src.ops.math_ops import add, sub, mul, div, mod
-from src.ops.io_ops import put, ask
-from src.ops.stack_ops import dup, drop, swap, clear
+from src.ops.io_ops import put, ask, dot
+from src.ops.stack_ops import dup, drop, swap, clear, pick, rot, over
 from src.ops.logic_ops import eq, gt, lt
 from src.ops.var_ops import assign, call
 from src.ops.str_ops import concat
@@ -16,10 +16,14 @@ CMDS = {
     # IO ops
     "print": lambda stack: put(stack),
     "in": lambda stack: ask(stack),
+    ".": lambda stack: dot(stack),
     # Stack ops
     "dup": lambda stack: dup(stack),
     "drop": lambda stack: drop(stack),
     "swap": lambda stack: swap(stack),
+    "pick": lambda stack: pick(stack),
+    "rot": lambda stack: rot(stack),
+    "over": lambda stack: over(stack),
     "popall": lambda stack: clear(stack),
     # Boolean ops
     "==": lambda stack: eq(stack),
