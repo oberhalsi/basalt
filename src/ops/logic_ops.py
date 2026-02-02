@@ -27,3 +27,24 @@ def lt(stack):
         stack.append(1 if a < b else 0)
     except TypeError:
         Error("TypeError", f"Cannot compare {type(a).__name__} and {type(b).__name__}", "<")
+
+def and_op(stack):
+    try:
+        b = stack.pop()
+        a = stack.pop()
+        stack.append(1 if (a and b) else 0)
+    except IndexError:
+        Error("StackUnderflow", "stack too shallow for and", "and")
+
+def not_op(stack):
+    try:
+        a = stack.pop()
+        stack.append(0 if a else 1)
+    except IndexError:
+        Error("StackUnderflow", "stack too shallow for not", "not")
+
+def or_op(stack):
+    try:
+        stack.append(1 if (stack.pop() | stack.pop()) else 0)
+    except IndexError:
+        Error("StackUnderflow", "stack too shallow for or", "or")

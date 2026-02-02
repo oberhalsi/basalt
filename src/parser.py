@@ -1,7 +1,7 @@
 from src.ops.math_ops import add, sub, mul, div, mod
 from src.ops.io_ops import put, ask, dot
 from src.ops.stack_ops import dup, drop, swap, clear, pick, rot, over
-from src.ops.logic_ops import eq, gt, lt
+from src.ops.logic_ops import eq, gt, lt, and_op, or_op, not_op
 from src.ops.var_ops import assign, call
 from src.ops.str_ops import concat
 from src.utils import Error
@@ -29,6 +29,9 @@ CMDS = {
     "==": lambda stack: eq(stack),
     ">": lambda stack: gt(stack),
     "<": lambda stack: lt(stack),
+    "and": lambda stack: and_op(stack),
+    "or": lambda stack: or_op(stack),
+    "not": lambda stack: not_op(stack),
     # Variable ops
     "=": lambda stack: assign(stack),
     "call": lambda stack: call(stack),
