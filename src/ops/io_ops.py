@@ -1,6 +1,8 @@
 import sys
 from src.utils import Error
 
+did_print = False
+
 def put(stack):
     if not stack:
         Error("StackUnderflow", "nothing to print (stack is empty)", "print")
@@ -11,7 +13,7 @@ def dot(stack):
     if not stack:
         Error("StackUnderflow", "nothing to print (stack is empty)", ".")
         return
-    sys.stdout.write(stack.pop())
+    sys.stdout.write(str(stack.pop()))
 
 def ask(stack):
     try:
