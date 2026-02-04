@@ -1,6 +1,8 @@
-from parser import execute
-from lexer import tokenize
-print("Basalt v1.0 Shell")
+from src.parser import execute
+from src.lexer import tokenize
+from src.ops.include_ops import reset_includes
+
+print("Basalt v1.0.1 Shell")
 print("Type 'exit' to quit.")
     
 stack = [] 
@@ -11,6 +13,9 @@ while True:
             
         if user_input.lower() == "exit":
             break
+        
+        # Reset includes for each REPL command to allow re-including
+        reset_includes()
                 
         execute(tokenize(user_input), stack)
             

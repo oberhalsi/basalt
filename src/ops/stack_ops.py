@@ -21,8 +21,9 @@ def swap(stack):
 def pick(stack):
     try:
         n = stack.pop() 
-    except IndexErrorr:
-        Error("StackUnderflow", "pick requires at least two items", "swap")
+    except IndexError:  
+        Error("StackUnderflow", "pick requires at least one item", "pick")
+        return
     if len(stack) >= n:
         stack.append(stack[-n])
     else:
@@ -33,13 +34,13 @@ def rot(stack):
         item = stack.pop(-3)
         stack.append(item)
     except IndexError:
-        print(Error("StackUnderflow", "stack too shallow for rot", "rot"))
+        Error("StackUnderflow", "stack too shallow for rot", "rot")
 
 def over(stack):
     try:
         stack.append(stack[-2])
     except IndexError:
-        print(Error("StackUnderflow", "stack too shallow for over", "over"))
+        Error("StackUnderflow", "stack too shallow for over", "over")
 
 def clear(stack):
-    stack.clear()
+    stack.clear()  
