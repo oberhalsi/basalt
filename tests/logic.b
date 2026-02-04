@@ -4,4 +4,4 @@
 10 5 == print
 1 1 and print
 1 0 or print
-0 0 not print
+0 not print

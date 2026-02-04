@@ -29,3 +29,6 @@ def ask(stack):
         Error("IOError", "input stream closed", "in")
     except KeyboardInterrupt:
         print("\nInput cancelled.")
+
+def newline(stack):
+    print("\n")

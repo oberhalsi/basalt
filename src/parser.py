@@ -1,5 +1,5 @@
 from src.ops.math_ops import add, sub, mul, div, mod, power
-from src.ops.io_ops import put, ask, dot
+from src.ops.io_ops import put, ask, dot, newline
 from src.ops.stack_ops import dup, drop, swap, clear, pick, rot, over
 from src.ops.logic_ops import eq, gt, lt, and_op, or_op, not_op, xor_op
 from src.ops.var_ops import assign, call
@@ -18,6 +18,7 @@ CMDS = {
     "print": lambda stack: put(stack),
     "in": lambda stack: ask(stack),
     ".": lambda stack: dot(stack),
+    "newline": lambda stack: newline(stack),
     # Stack ops
     "dup": lambda stack: dup(stack),
     "drop": lambda stack: drop(stack),
