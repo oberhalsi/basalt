@@ -2,7 +2,7 @@ from src.parser import execute
 from src.lexer import tokenize
 from src.ops.include_ops import reset_includes
 
-print("Basalt v1.0.1 Shell")
+print("Basalt v1.1.0 Shell")
 print("Type 'exit' to quit.")
     
 stack = [] 
