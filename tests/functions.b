@@ -1,2 +1,4 @@
-{ dup * } "square" =
-5 "square" call run print
+{
+dup *
+} "square" =
+5 square print

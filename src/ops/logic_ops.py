@@ -51,6 +51,8 @@ def or_op(stack):
 
 def xor_op(stack):
     try:
-        stack.append(1 if (stack.pop() ^ stack.pop()) else 0)
+        a = stack.pop()
+        b = stack.pop()
+        stack.append(a ^ b)
     except IndexError:
         Error("StackUnderflow", "stack too shallow for xor", "xor")

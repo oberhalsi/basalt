@@ -3,6 +3,7 @@ from src.ops.io_ops import put, ask, dot, newline
 from src.ops.stack_ops import dup, drop, swap, clear, pick, rot, over
 from src.ops.logic_ops import eq, gt, lt, and_op, or_op, not_op, xor_op
 from src.ops.var_ops import assign, call
+import src.ops.var_ops as var_ops
 from src.ops.str_ops import concat
 from src.ops.include_ops import include
 from src.utils import Error
@@ -75,7 +76,6 @@ def validate_syntax(tokens):
     return True
 
 def execute(tokens, stack, labels=None):
-    # Validate syntax before execution
     if not validate_syntax(tokens):
         return
     
@@ -105,6 +105,7 @@ def execute(tokens, stack, labels=None):
             stack.append(block)
             continue
         
+        # Catch stray closing brace
         if token == "}":
             Error("SyntaxError", "Unexpected '}' - not inside a code block", "}")
             return
@@ -163,6 +164,14 @@ def execute(tokens, stack, labels=None):
             try: 
                 stack.append(int(token))
             except ValueError:
-                Error("SyntaxError", f"Unknown token '{token}' - not a command, number, or string", token)
+
+                if token in var_ops.variables:
+                    value = var_ops.variables[token]
+                    if isinstance(value, list):
+                        execute(value, stack, labels)
+                    else:
+                        stack.append(value)
+                else:
+                    Error("NameError", f"Unknown identifier '{token}' - not a command or defined variable", token)
         
         pc += 1

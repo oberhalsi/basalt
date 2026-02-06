@@ -1,4 +1,4 @@
 10 "x" =
 "String" "y" =
-"y" call "x" call 
+x y
 print print

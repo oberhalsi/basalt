@@ -73,22 +73,6 @@ python main.py hello.b
 17 5 % print     # → 2
 ```
 
-### Factorial (Recursion)
-
-```basalt
-# tests/factorial.b
-def factorial
-  dup 1 >
-  if
-    dup 1 - factorial *
-  else
-    pop 1
-  end
-end
-
-5 factorial print  # → 120
-```
-
 ### Stack Manipulation
 
 ```basalt
