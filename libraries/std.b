@@ -1,3 +1,0 @@
-{ 
-"skibidi" print 
-} "myfunction" =

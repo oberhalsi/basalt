@@ -44,19 +44,6 @@ python main.py tests/math.b
 basalt yourfile.b
 ```
 
-### For Running it on MacOS
-
-1. Drag Basalt.app to the Applications folder
-2. Open Terminal
-3. Run: /Applications/Basalt.app/Contents/MacOS/Basalt yourfile.b
-
-Or add to your PATH: (recomended)
-    
-    echo 'alias basalt="/Applications/Basalt.app/Contents/MacOS/Basalt"' >> ~/.zshrc source ~/.zshrc
-
-
-Then run: basalt yourfile.b
-
 ### Your First Program
 
 Create a file called `hello.b`:
@@ -72,80 +59,6 @@ Run it:
 ```bash
 python main.py hello.b
 ```
-
-## Examples
-
-### Basic Arithmetic
-
-```basalt
-# tests/math.b
-7 42 + print     # → 49
-100 37 - print   # → 63
-6 8 * print      # → 48
-144 12 / print   # → 12
-17 5 % print     # → 2
-```
-
-### Stack Manipulation
-
-```basalt
-10 dup              # stack: [10 10]
-print print         # prints: 10, then 10
-
-1 2 swap            # stack: [2 1]
-print print         # prints: 1, then 2
-
-3 4 over            # stack: [3 4 3]
-print print print   # prints: 3, 4, 3
-```
-
-## Language Reference
-
-### Stack Operations
-- `push <val>` - Push a value onto the stack
-- `pop` - Remove and discard the top element
-- `dup` - Duplicate the top element
-- `swap` - Swap the top two elements
-- `over` - Copy the second element to the top
-- `rot` - Rotate the top three elements
-
-### Math Operations
-- `+` - Addition
-- `-` - Subtraction
-- `*` - Multiplication
-- `/` - Integer division
-- `%` - Modulo
-- `==` - Equality check
-- `<` - Less than
-- `>` - Greater than
-
-### I/O Operations
-- `print` - Pop and print the top value
-- `println` - Pop and print with newline
-- `input` - Read input and push to stack
-
-### Control Flow
-- `if ... else ... end` - Conditional execution
-- `while ... end` - Loop while condition is true
-- `def name ... end` - Define a function
-
-### String Operations
-- `"text"` - String literal
-- `concat` - Concatenate two strings
-- `len` - Get string length
-- `tostr` - Convert to string
-
-## Architecture
-
-Basalt's interpreter follows a simple pipeline:
-
-```
-Source File (.b) → Lexer → Parser → Interpreter → Output
-```
-
-1. **Lexer** (`src/lexer.py`) - Tokenizes source code
-2. **Parser** (`src/parser.py`) - Builds an Abstract Syntax Tree (AST)
-3. **Interpreter** (`src/interpreter.py`) - Executes the AST, managing the stack
 
 ## Project Structure
 
@@ -194,5 +107,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Oberhalsi** ([@Oberhalsi](https://github.com/oberhalsi)) & **Alexander Wondwossen** ([@thealxlabs](https://github.com/thealxlabs))  
+**Oberhalsi** ([@Oberhalsi](https://github.com/oberhalsi)) & **Alexander Wondwossen** ([@alxgraphy](https://github.com/alxgraphy))  
 Made with ❤️ from two kids who had an idea in Toronto, Canada 🇨🇦
