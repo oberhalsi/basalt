@@ -44,6 +44,19 @@ python main.py tests/math.b
 basalt yourfile.b
 ```
 
+### For Running it on MacOS
+
+1. Drag Basalt.app to the Applications folder
+2. Open Terminal
+3. Run: /Applications/Basalt.app/Contents/MacOS/Basalt yourfile.b
+
+Or add to your PATH: (recomended)
+    
+    echo 'alias basalt="/Applications/Basalt.app/Contents/MacOS/Basalt"' >> ~/.zshrc source ~/.zshrc
+
+
+Then run: basalt yourfile.b
+
 ### Your First Program
 
 Create a file called `hello.b`:
@@ -181,5 +194,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Oberhalsi** ([@Oberhalsi](https://github.com/oberhalsi)) & **Alexander Wondwossen** ([@alxgraphy](https://github.com/alxgraphy))  
+**Oberhalsi** ([@Oberhalsi](https://github.com/oberhalsi)) & **Alexander Wondwossen** ([@thealxlabs](https://github.com/thealxlabs))  
 Made with ❤️ from two kids who had an idea in Toronto, Canada 🇨🇦
