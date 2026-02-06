@@ -105,7 +105,6 @@ def execute(tokens, stack, labels=None):
             stack.append(block)
             continue
         
-        # Catch stray closing brace
         if token == "}":
             Error("SyntaxError", "Unexpected '}' - not inside a code block", "}")
             return
@@ -122,7 +121,12 @@ def execute(tokens, stack, labels=None):
                 pc += 1
                 continue
             
-            execute(block, stack, labels)
+            block_labels = {t[:-1]: i for i, t in enumerate(block) if t.endswith(':')}
+            
+            combined_labels = labels.copy()
+            combined_labels.update(block_labels)
+            
+            execute(block, stack, combined_labels)
             pc += 1
             continue
         
@@ -164,11 +168,13 @@ def execute(tokens, stack, labels=None):
             try: 
                 stack.append(int(token))
             except ValueError:
-
                 if token in var_ops.variables:
                     value = var_ops.variables[token]
                     if isinstance(value, list):
-                        execute(value, stack, labels)
+                        block_labels = {t[:-1]: i for i, t in enumerate(value) if t.endswith(':')}
+                        combined_labels = labels.copy()
+                        combined_labels.update(block_labels)
+                        execute(value, stack, combined_labels)
                     else:
                         stack.append(value)
                 else:
