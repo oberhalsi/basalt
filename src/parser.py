@@ -4,7 +4,7 @@ from src.ops.stack_ops import dup, drop, swap, clear, pick, rot, over
 from src.ops.logic_ops import eq, gt, lt, and_op, or_op, not_op, xor_op
 from src.ops.var_ops import assign, call
 import src.ops.var_ops as var_ops
-from src.ops.str_ops import concat
+from src.ops.str_ops import concat, split_chars
 from src.ops.include_ops import include
 from src.utils import Error
 
@@ -46,7 +46,8 @@ CMDS = {
     "call": lambda stack: call(stack),
     
     # String ops
-    "str+": lambda stack: concat(stack)
+    "str+": lambda stack: concat(stack),
+    "split_chars": lambda stack: split_chars(stack)
 }
 
 def validate_syntax(tokens):
@@ -54,6 +55,7 @@ def validate_syntax(tokens):
     Pre-validate tokens for common syntax errors before execution.
     Returns True if valid, False otherwise.
     """
+    # Check for unmatched braces
     brace_depth = 0
     for i, token in enumerate(tokens):
         if token == "{":
@@ -68,6 +70,7 @@ def validate_syntax(tokens):
         Error("SyntaxError", f"Unclosed code block - missing {brace_depth} closing brace(s) '}}'", "{")
         return False
     
+    # Check for unclosed strings (basic check - lexer should catch most)
     for token in tokens:
         if token.startswith('"') and not token.endswith('"'):
             Error("SyntaxError", f"Unclosed string: {token}", token)
@@ -76,6 +79,7 @@ def validate_syntax(tokens):
     return True
 
 def execute(tokens, stack, labels=None):
+    # Validate syntax before execution
     if not validate_syntax(tokens):
         return
     
@@ -86,6 +90,7 @@ def execute(tokens, stack, labels=None):
     while pc < len(tokens):
         token = tokens[pc]
         
+        # Handle code blocks
         if token == "{":
             block, depth = [], 1
             pc += 1
@@ -98,6 +103,7 @@ def execute(tokens, stack, labels=None):
                     block.append(tokens[pc])
                 pc += 1
             
+            # This should never happen due to validate_syntax, but just in case
             if depth > 0:
                 Error("SyntaxError", "Unclosed code block (missing })", "{")
                 return
@@ -105,10 +111,12 @@ def execute(tokens, stack, labels=None):
             stack.append(block)
             continue
         
+        # Catch stray closing brace
         if token == "}":
             Error("SyntaxError", "Unexpected '}' - not inside a code block", "}")
             return
         
+        # Run a code block
         if token == "run":
             if not stack: 
                 Error("StackUnderflow", "nothing to run", "run")
@@ -121,20 +129,24 @@ def execute(tokens, stack, labels=None):
                 pc += 1
                 continue
             
+            # CRITICAL FIX: Extract labels from the block before execution
             block_labels = {t[:-1]: i for i, t in enumerate(block) if t.endswith(':')}
             
+            # Merge block labels with existing labels (block labels take precedence)
             combined_labels = labels.copy()
             combined_labels.update(block_labels)
             
+            # Execute the block with its own labels
             execute(block, stack, combined_labels)
             pc += 1
             continue
         
-
+        # Handle include (special case - needs to modify tokens and labels)
         if token == "include":
             pc, tokens, labels = include(stack, tokens, pc, labels)
             continue
         
+        # Handle other commands
         if token in CMDS:
             CMDS[token](stack)
         elif token == "jump":
@@ -178,6 +190,7 @@ def execute(tokens, stack, labels=None):
                     else:
                         stack.append(value)
                 else:
+                    # Unknown token
                     Error("NameError", f"Unknown identifier '{token}' - not a command or defined variable", token)
         
         pc += 1
