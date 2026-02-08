@@ -7,15 +7,15 @@ Loads and executes code from another Basalt file.
 
 **Examples:**
 ```basalt
-"std.b" include
-"libs/math.b" include
-"C:\path\to\file.b" include
+"math" include              # Standard library from libraries/ folder
+"utils/helper.b" include    # Relative path
+"C:\path\to\file.b" include # Absolute path
 ```
 
 **Errors:**
 - StackUnderflow: If stack is empty
 - TypeError: If filename is not a string
-- FileNotFoundError: If file doesn't exist
+- FileNotFoundError: If file doesn't exist in libraries/ or as path
 - IOError: If file can't be read
 
 **Important Notes:**
@@ -23,65 +23,84 @@ Loads and executes code from another Basalt file.
 - Each file is only included once (circular import protection)
 - Included code executes immediately
 - Labels and variables from included files are available
+- `.b` extension is automatically added if not present
 
 ---
 
 ## How Include Works
 
-### 1. File Resolution
-When you include a file, Basalt looks in this order:
+### 1. File Resolution (Library Search Path)
+When you include a file, Basalt searches in this order:
 
-1. **Relative to current file's directory**
-2. Relative to current working directory  
-3. Absolute path (if provided)
+1. **Standard library folder** (`libraries/`)
+2. **Relative to current file's directory**
+3. **Relative to current working directory**
+4. **Absolute path** (if provided)
 
 **Example:**
 ```
 project/
 ├── main.b
-├── lib.b
+├── libraries/
+│   ├── math.b
+│   └── rng.b
 └── utils/
     └── helpers.b
 ```
 
 **In main.b:**
 ```basalt
-"lib.b" include           # Same directory
-"utils/helpers.b" include # Subdirectory
+"math" include              # Finds libraries/math.b
+"rng" include               # Finds libraries/rng.b
+"utils/helpers.b" include   # Relative path
 ```
 
 **In utils/helpers.b:**
 ```basalt
-"../lib.b" include        # Go up one directory
+"math" include              # Still finds libraries/math.b
+"../main.b" include         # Relative to helpers.b location
 ```
 
 ---
 
-### 2. Execution
+### 2. Automatic .b Extension
+The `.b` extension is optional:
+
+```basalt
+"math" include       # Searches for math.b
+"math.b" include     # Also works
+```
+
+Both find `libraries/math.b`.
+
+---
+
+### 3. Execution
 When a file is included:
 
-1. File is read and tokenized
-2. Tokens are inserted into the current program
-3. Labels are registered
-4. Code executes immediately
+1. File is searched in library paths
+2. File is read and tokenized
+3. Tokens are inserted into the current program
+4. Labels are registered
+5. Code executes immediately
 
 **Example:**
 
-**lib.b:**
+**libraries/math.b:**
 ```basalt
-"Loading library..." print
 { dup * } "square" =
+{ dup dup * * } "cube" =
 ```
 
 **main.b:**
 ```basalt
-"lib.b" include    # Prints "Loading library..." and defines square
-5 "square" call run print    # → 25
+"math" include    # Loads from libraries/
+5 square print    # → 25 (no "call run" needed!)
 ```
 
 ---
 
-### 3. Circular Import Protection
+### 4. Circular Import Protection
 Each file can only be included once:
 
 **a.b:**
@@ -98,12 +117,28 @@ Each file can only be included once:
 
 ---
 
+## Standard Library
+
+### Using Standard Libraries
+Standard libraries are in the `libraries/` folder and can be imported by name:
+
+```basalt
+"math" include     # libraries/math.b
+"rng" include      # libraries/rng.b
+```
+
+### Available Standard Libraries
+- **math.b** - Mathematical functions (square, cube, abs, min, max, factorial, pow10, sum_1_to_n, average, in_range, clamp, digits_count, etc.)
+- **rng.b** - Random number generation
+
+---
+
 ## Creating Library Files
 
 ### Simple Library
-**math_lib.b:**
+**libraries/mylib.b:**
 ```basalt
-# Math utility functions
+# My utility functions
 
 { dup * } "square" =
 { dup dup * * } "cube" =
@@ -113,72 +148,30 @@ Each file can only be included once:
 
 **Using it:**
 ```basalt
-"math_lib.b" include
+"mylib" include
 
-5 "square" call run print    # → 25
-3 "cube" call run print      # → 27
-10 "double" call run print   # → 20
+5 square print    # → 25
+3 cube print      # → 27
+10 double print   # → 20
 ```
 
 ---
 
 ### Library with Dependencies
-**advanced_math.b:**
+**libraries/advanced_math.b:**
 ```basalt
 # Include basic math first
-"math_lib.b" include
+"math" include
 
 # Build on it
-{ "square" call run "double" call run } "square_and_double" =
+{ square double } "square_and_double" =
 ```
 
 **Using it:**
 ```basalt
-"advanced_math.b" include    # Also loads math_lib.b
+"advanced_math" include    # Also loads math
 
-5 "square_and_double" call run print    # → 50
-```
-
----
-
-## Standard Library Pattern
-
-### Standard Library Structure
-```
-project/
-├── main.b
-├── std.b              # Core standard library
-└── libs/
-    ├── math.b         # Math utilities
-    ├── string.b       # String utilities
-    └── io.b           # I/O helpers
-```
-
-### std.b (Core Library)
-```basalt
-# Basalt Standard Library v1.0
-
-# Math operations
-{ dup * } "square" =
-{ dup dup * * } "cube" =
-{ 2 * } "double" =
-{ 3 * } "triple" =
-
-# Logic operations
-{ 2 % 0 == } "is_even" =
-{ 2 % 1 == } "is_odd" =
-
-# I/O operations
-{ print newline } "println" =
-```
-
-### Using Standard Library
-```basalt
-"std.b" include
-
-5 "square" call run print
-10 "is_even" call run print
-"Hello!" "println" call run
+5 square_and_double print    # → 50
 ```
 
 ---
@@ -187,49 +180,41 @@ project/
 
 ### 1. Import Multiple Libraries
 ```basalt
-"std.b" include
-"libs/math.b" include
-"libs/string.b" include
+"math" include
+"rng" include
 
-# Now use functions from all libraries
+# Use functions from both
+1 10 rand print
+5 square print
 ```
 
 ---
 
-### 2. Conditional Include
-```basalt
-debug_mode
-{ "debug_lib.b" include }
-{ }
-if_jump
-```
-
----
-
-### 3. Import at Top of File
+### 2. Import at Top of File
 ```basalt
 # Always import at the top
-"std.b" include
-"config.b" include
+"math" include
 
 # Then your code
 "Starting program..." print
+5 square print
 ```
 
 ---
 
-### 4. Relative Imports
+### 3. Custom Library Paths
+For files not in `libraries/`:
+
 ```basalt
-# In utils/helper.b
-"../std.b" include        # Go up one directory
-"./local.b" include       # Same directory
+"../myproject/utils.b" include    # Relative path
+"C:\libs\custom.b" include         # Absolute path
 ```
 
 ---
 
 ## Best Practices
 
-### 1. Library Files Should Only Define
+### 1. Library Files Should Only Define Functions
 **Good:**
 ```basalt
 # math.b - Only definitions
@@ -242,22 +227,17 @@ if_jump
 # math.b - Has side effects
 { dup * } "square" =
 "Loading math library..." print    # ❌ Prints every time
-5 "square" call run print           # ❌ Executes code
+5 square print                      # ❌ Executes code on import
 ```
 
 ---
 
-### 2. Use Clear Naming
-**Good:**
-```basalt
-"std.b" include
-"math_utils.b" include
-```
+### 2. Use Standard Library for Common Code
+Put reusable functions in `libraries/` so they can be imported by name:
 
-**Bad:**
 ```basalt
-"lib.b" include
-"util.b" include
+"math" include      # ✅ Clear and simple
+"libraries/math.b" include    # ❌ Redundant
 ```
 
 ---
@@ -279,15 +259,15 @@ if_jump
 
 ---
 
-### 4. Group Related Functions
+### 4. One Purpose Per Library
 ```basalt
-# Good - one file per category
-"math.b" include      # Math functions
-"string.b" include    # String functions
-"io.b" include        # I/O functions
+# Good - focused libraries
+"math" include      # Math functions
+"string" include    # String functions
+"io" include        # I/O helpers
 
-# Bad - everything in one file
-"everything.b" include
+# Bad - everything in one
+"everything" include
 ```
 
 ---
@@ -296,7 +276,7 @@ if_jump
 
 ### File Not Found
 ```basalt
-"nonexistent.b" include
+"nonexistent" include
 ```
 
 **Error:**
@@ -305,7 +285,7 @@ if_jump
 Basalt Error: FileNotFoundError
 ==================================================
 Command: 'include'
-Message: Could not find file 'nonexistent.b'
+Message: Could not find file 'nonexistent' in libraries/ or as a path
 ==================================================
 ```
 
@@ -347,18 +327,14 @@ Message: include requires a filename
 
 ## Examples
 
-### Example 1: Simple Program with Library
-**lib.b:**
+### Example 1: Using Standard Library
 ```basalt
-{ dup * } "square" =
-{ 2 * } "double" =
-```
+"math" include
 
-**main.b:**
-```basalt
-"lib.b" include
-
-5 "square" call run "double" call run print    # → 50
+5 square print        # → 25
+-10 abs print         # → 10
+3 factorial print     # → 6
+10 20 min print       # → 10
 ```
 
 ---
@@ -370,39 +346,35 @@ Message: include requires a filename
 "MyApp" "app_name" =
 ```
 
-**utils.b:**
-```basalt
-{ print newline } "println" =
-```
-
 **main.b:**
 ```basalt
+"math" include
 "config.b" include
-"utils.b" include
 
-"app_name" call "println" call run
-"Max score: " . "max_score" call print
+app_name print
+"Max score: " . max_score print
+5 square print
 ```
 
 ---
 
-### Example 3: Library with Dependencies
-**basic.b:**
+### Example 3: Library Chain
+**libraries/basic.b:**
 ```basalt
 { 2 * } "double" =
 ```
 
-**advanced.b:**
+**libraries/advanced.b:**
 ```basalt
-"basic.b" include
-{ "double" call run "double" call run } "quadruple" =
+"basic" include
+{ double double } "quadruple" =
 ```
 
 **main.b:**
 ```basalt
-"advanced.b" include    # Also loads basic.b
+"advanced" include    # Also loads basic
 
-5 "quadruple" call run print    # → 20
+5 quadruple print    # → 20
 ```
 
 ---
@@ -420,27 +392,27 @@ result = math.sqrt(16)
 
 **Basalt:**
 ```basalt
-"math.b" include
-"utils/helper.b" include
+"math" include
 
-16 "sqrt" call run
+5 square print
 ```
 
 ---
 
-### JavaScript
+### JavaScript/Node.js
 **JavaScript:**
 ```javascript
-import { square, cube } from './math.js';
+const math = require('./math');
+const utils = require('utils');
 
-console.log(square(5));
+console.log(math.square(5));
 ```
 
 **Basalt:**
 ```basalt
-"math.b" include
+"math" include
 
-5 "square" call run print
+5 square print
 ```
 
 ---
@@ -448,31 +420,42 @@ console.log(square(5));
 ### C
 **C:**
 ```c
-#include "math.h"
-#include "utils.h"
-
-int result = square(5);
+#include <math.h>      // System library
+#include "mylib.h"     // Local library
 ```
 
 **Basalt:**
 ```basalt
-"math.b" include
-"utils.b" include
-
-5 "square" call run
+"math" include         # Standard library
+"mylib.b" include      # Custom library
 ```
+
+---
+
+## Library Search Path Details
+
+The search path works like Python's `sys.path`:
+
+1. **`libraries/`** - Standard library location (always checked first)
+2. **Current file's directory** - For relative imports
+3. **Current working directory** - Where you ran the program
+
+This means:
+- Standard libraries are globally accessible by name
+- Custom libraries need paths (relative or absolute)
+- The system is smart about finding files
 
 ---
 
 ## Tips
 
-1. **Always use strings** - `"file.b" include` not `file.b include`
+1. **Use library names for standard libs** - `"math" include` not `"libraries/math.b" include`
 2. **Include at top** - Make dependencies clear
-3. **Relative paths** - Use `./ `and `../` for clarity
+3. **Relative paths for custom code** - `"utils/helper.b" include`
 4. **Test libraries independently** - Make sure they work standalone
-5. **Document what's exported** - List available functions in comments
+5. **Document exported functions** - List available functions in comments
 6. **Keep libraries focused** - One purpose per file
-7. **Use consistent naming** - `math.b` not `m.b` or `mathematics.b`
+7. **Extension is optional** - `"math"` and `"math.b"` both work
 
 ---
 
@@ -483,11 +466,11 @@ int result = square(5);
 - No selective imports (imports entire file)
 - No import aliasing
 - No lazy loading
-- No module system
+- No private/public functions
 
 **Future enhancements could add:**
-- `from "math.b" import "square" "cube"`
-- `"math.b" as "m" include`
+- `from "math" import square cube`
+- `"math" as m include`
 - Module namespaces
-- Import control (public/private)
-- Package management
+- Private functions (prefix with `_`)
+- Package manager
