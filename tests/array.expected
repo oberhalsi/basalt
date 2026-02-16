@@ -1,0 +1,44 @@
+=== Test 1: Aggregation ===
+[10, 50, 30, 20, 40]
+Sum: 150
+Min: 10
+Max: 50
+Avg: 30
+
+
+=== Test 2: Fill ===
+[99, 99, 99, 99, 99]
+
+
+=== Test 3: Copy ===
+[10, 50, 30, 20, 40]
+
+
+=== Test 4: Reverse ===
+[40, 20, 30, 50, 10]
+
+
+=== Test 5: Find ===
+2
+-1
+
+
+=== Test 6: Contains ===
+1
+0
+
+
+=== Test 7: Map Double ===
+[1, 2, 3, 4, 5]
+[2, 4, 6, 8, 10]
+
+
+=== Test 8: Map Square ===
+[1, 2, 3, 4, 5]
+[1, 4, 9, 16, 25]
+
+
+=== Test 9: Filter Positive ===
+[-5, 10, -3, 20, -1, 15]
+New size: 3
+[10, 20, 15]

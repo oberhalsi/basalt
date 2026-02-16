@@ -1,6 +1,3 @@
-# Math Library for Basalt
-# Now with working conditionals inside code blocks!
-
 # ============================================
 # Basic Operations
 # ============================================
@@ -132,18 +129,18 @@ f_done:
 { + 2 / } "average" =
 
 # ============================================
-# Range
+# Range - NOW WITH LOCAL VARIABLES!
 # ============================================
 
 {
-    "max_r" =
-    "min_r" =
+    "max_r" local        
+    "min_r" local        
     dup min_r < not swap max_r > not and
 } "in_range" =
 
 {
-    "max_c" =
-    "min_c" =
+    "max_c" local        
+    "min_c" local        
     min_c max max_c min
 } "clamp" =
 
